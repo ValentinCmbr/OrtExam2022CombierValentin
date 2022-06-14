@@ -1,24 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
-import {StyleSheet, Text, View, Image, SafeAreaView, FlatList, TouchableOpacity} from 'react-native';
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
+import {
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    SafeAreaView,
+    FlatList,
+    TouchableOpacity,
+    TextInput,
+    ScrollView,
+    SafeAreaViewComponent
+} from 'react-native';
 
 
 export default function App() {
 
   const [liste, setListe] = useState(null)
   const [newState, setNewState] = useState(false);
+  const [number, onChangeNumber] = useState(null);
 
   const getSimpson = () => {
-    fetch('https://thesimpsonsquoteapi.glitch.me/quotes')
+    fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=1`)
         .then(response => response.json())
         .then(data => {
           setListe(data);
         })}
 
-    const reload = () => React.useCallback(() => {
-        setNewState(true);
-        wait(2000).then(() => setNewState(false));
-    }, []);
+    const reload = () => {
+        fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=${number}`)
+            .then(response => response.json())
+            .then(data => {
+                setListe(data);
+            })}
 
   useEffect(() => {
         (async () => {
@@ -27,11 +41,18 @@ export default function App() {
       },
       []);
 
+    useEffect(() => {
+            (async () => {
+                reload()
+            })();
+        },
+        []);
+
   const Item = ({title}) => (
     <View>
-      <Text>{title.character}</Text>
+      <Text style={styles.name}>{title.character}</Text>
       <Text>{title.quote}</Text>
-        <Image style={styles.tinyLogo} source={{uri: title.image}}/>
+       <Image style={styles.tinyLogo} source={{uri: title.image}}/>
     </View>
 );
 
@@ -39,9 +60,13 @@ export default function App() {
     <Item title={item} />
   );
   return (
-    <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <TextInput style={styles.input} onChangeText={onChangeNumber} value={number} placeholder="Choisir nombre" keyboardType="numeric"/>
       <FlatList data={liste} renderItem={renderItem}></FlatList>
-    </View>
+      <TouchableOpacity style={styles.button} onPress={reload}><Text>Reload</Text></TouchableOpacity>
+      </ScrollView>
+      </SafeAreaView>
   );
 }
 
@@ -57,4 +82,23 @@ const styles = StyleSheet.create({
         height: 120,
         borderRadius:4,
     },
+    button: {
+        alignItems: "center",
+        backgroundColor: "#DDDDDD",
+        padding: 10
+    },
+    input: {
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+    },
+    scrollView: {
+        backgroundColor: 'pink',
+        marginHorizontal: 20,
+    },
+    name: {
+      color:"#36b6d9",
+    }
+
 });
