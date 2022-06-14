@@ -17,18 +17,18 @@ import {
 export default function App() {
 
   const [liste, setListe] = useState(null)
-  const [newState, setNewState] = useState(false);
   const [number, onChangeNumber] = useState(null);
+  const [texte, onChangeTexte] = useState(null)
 
   const getSimpson = () => {
-    fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=1`)
+      fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=1`)
         .then(response => response.json())
         .then(data => {
           setListe(data);
         })}
 
     const reload = () => {
-        fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=${number}`)
+        fetch(`https://thesimpsonsquoteapi.glitch.me/quotes?count=${number}&character=${texte}`)
             .then(response => response.json())
             .then(data => {
                 setListe(data);
@@ -40,13 +40,6 @@ export default function App() {
         })();
       },
       []);
-
-    useEffect(() => {
-            (async () => {
-                reload()
-            })();
-        },
-        []);
 
   const Item = ({title}) => (
     <View>
@@ -63,8 +56,9 @@ export default function App() {
       <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <TextInput style={styles.input} onChangeText={onChangeNumber} value={number} placeholder="Choisir nombre" keyboardType="numeric"/>
+        <TextInput style={styles.input} onChangeText={onChangeTexte} value={texte} placeholder="Choisir un personnage" keyboardType="ascii-capable"></TextInput>
+          <TouchableOpacity style={styles.button} onPress={reload}><Text>Confirmer la recherche</Text></TouchableOpacity>
       <FlatList data={liste} renderItem={renderItem}></FlatList>
-      <TouchableOpacity style={styles.button} onPress={reload}><Text>Reload</Text></TouchableOpacity>
       </ScrollView>
       </SafeAreaView>
   );
@@ -84,7 +78,7 @@ const styles = StyleSheet.create({
     },
     button: {
         alignItems: "center",
-        backgroundColor: "#DDDDDD",
+        backgroundColor: "#e5bdf0",
         padding: 10
     },
     input: {
